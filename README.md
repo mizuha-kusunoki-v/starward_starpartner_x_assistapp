@@ -78,6 +78,15 @@ npm run build
 7. 1件ずつフォームのタブを開いて自動入力・送信します。
    エラー時は自動送信を止め、該当タブを開いたままにするので手動で確認・完了してください
 
+## 公開・配布
+
+- [使い方ガイド（非技術者向け）](https://mizuha-kusunoki-v.github.io/starward_starpartner_x_assistapp/user-guide.html)（`docs/user-guide.html`）
+- [プライバシーポリシー](https://mizuha-kusunoki-v.github.io/starward_starpartner_x_assistapp/privacy-policy.html)（`docs/privacy-policy.html`）
+- [Chromeウェブストア申請ガイド](docs/chrome-web-store-submission.md)（審査に必要な説明文・手順まとめ）
+- `docs/` は GitHub Pages（`main` ブランチ / `/docs`）で公開しています
+- タグ(`v*.*.*`)をpushすると、GitHub Actionsが自動でビルドし、zip化した拡張機能パッケージを
+  GitHub Releasesに公開します（`.github/workflows/release.yml`）
+
 ## 注意事項・既知の制約
 
 - フォーム送信は**完全無人の連続送信ではなく**、一覧で確認・選択した上で実行する半自動方式です。
