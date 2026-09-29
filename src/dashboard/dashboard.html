@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>星の翼 スターパートナー X投稿申請アシスト - ダッシュボード</title>
+<link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <header>
+    <h1>星の翼 スターパートナー X投稿申請アシスト</h1>
+    <a href="../options/options.html" target="_blank">設定を開く</a>
+  </header>
+
+  <div id="settingsWarning" class="warning" hidden>
+    設定が不足しています。<a href="../options/options.html" target="_blank">設定ページ</a> で
+    申請フォームURL・Xのユーザー名・Twitter名・Discord IDを入力してください。
+  </div>
+
+  <section class="fetch-bar">
+    <label>
+      対象年月
+      <input type="month" id="monthInput" />
+    </label>
+    <button type="button" id="fetchBtn">Xから投稿を取得</button>
+    <span id="fetchStatus"></span>
+  </section>
+  <p class="hint">
+    取得時にXの検索結果タブが開き、自動でスクロールして投稿を読み取ります（件数により数十秒〜数分）。
+    完了するまでそのタブは操作せずにお待ちください。事前に x.com へログインしておく必要があります。
+  </p>
+
+  <section>
+    <div class="table-actions">
+      <label><input type="checkbox" id="selectAll" /> 全選択</label>
+      <label title="判定で対象外になった投稿も表示し、手動でチェックして送信できるようにします">
+        <input type="checkbox" id="showExcluded" /> 対象外の投稿も表示
+      </label>
+      <button type="button" id="submitBtn" disabled>選択した投稿を一括送信</button>
+      <span id="submitStatus"></span>
+    </div>
+    <table id="tweetTable">
+      <thead>
+        <tr>
+          <th></th>
+          <th>画像</th>
+          <th>本文</th>
+          <th>投稿日</th>
+          <th>判定</th>
+          <th>ツイートリンク</th>
+          <th>キャラクター</th>
+          <th>状態</th>
+        </tr>
+      </thead>
+      <tbody id="tweetRows"></tbody>
+    </table>
+    <datalist id="characterList"></datalist>
+  </section>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

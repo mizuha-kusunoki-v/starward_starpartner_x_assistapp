@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>星の翼 スターパートナー X投稿申請アシスト - 設定</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 24px auto; padding: 0 16px; color: #222; }
+  h1 { font-size: 18px; }
+  fieldset { margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px; }
+  label { display: block; margin: 10px 0 4px; font-size: 13px; color: #444; }
+  label.inline { display: flex; align-items: center; gap: 6px; }
+  input[type=text], input[type=number] { width: 100%; padding: 6px 8px; box-sizing: border-box; font-size: 14px; }
+  .hint { font-size: 12px; color: #888; margin-top: 2px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  td, th { border: 1px solid #ddd; padding: 4px 6px; font-size: 13px; }
+  button { padding: 6px 14px; font-size: 14px; cursor: pointer; }
+  #status { margin-left: 10px; font-size: 13px; color: green; }
+  .row-actions { text-align: center; }
+</style>
+</head>
+<body>
+  <h1>星の翼 スターパートナー X投稿申請アシスト - 設定</h1>
+
+  <fieldset>
+    <legend>申請フォーム</legend>
+    <label for="formUrl">申請フォームURL</label>
+    <input type="text" id="formUrl" placeholder="https://wj.qq.com/s2/..." />
+    <div class="hint">運営から個別に案内された「Twitter絵画投稿/同人小説」フォームのURLを入力してください。このURLはソースコードには含まれていません。</div>
+  </fieldset>
+
+  <fieldset>
+    <legend>固定情報</legend>
+    <label for="twitterName">Twitter名（フォームに転記する登録ニックネーム）</label>
+    <input type="text" id="twitterName" />
+    <div class="hint">Xの表示名を変更していても、これまで一貫して使用してきた登録用ニックネームを入力してください</div>
+
+    <label for="discordId">DiscordのID</label>
+    <input type="text" id="discordId" />
+    <div class="hint">デフォルトの数字IDではなく、自身で設定したDiscord ID</div>
+  </fieldset>
+
+  <fieldset>
+    <legend>X（Twitter）投稿の収集</legend>
+    <label for="xHandle">自分のXユーザー名（@以降）</label>
+    <input type="text" id="xHandle" placeholder="例: starward_fan" />
+
+  </fieldset>
+
+  <fieldset>
+    <legend>対象投稿の判定</legend>
+    <div class="hint">
+      取得した投稿は ①除外キーワード → ②対象キーワード → ③作品の手がかり の順に判定します。
+      対象外になった投稿もダッシュボードの「対象外の投稿も表示」から確認・手動選択できます。
+      英数字だけの語（例: SS）は単語単位で照合します（class・boss などには一致しません）。
+    </div>
+
+    <label for="searchKeywords">① 対象キーワード（いずれかを含む。カンマ区切り）</label>
+    <input type="text" id="searchKeywords" placeholder="#星の翼, 星の翼, Starward" />
+    <div class="hint">ゲーム名・運営指定ハッシュタグ・表記ゆれを列挙します。空欄なら対象月の全投稿が対象。リンクカードの表示文言も照合します</div>
+
+    <label for="excludeKeywords">② 除外キーワード（1つでも含めば対象外。カンマ区切り）</label>
+    <input type="text" id="excludeKeywords" placeholder="例: ガチャ, 配信告知, 相互, 拡散希望" />
+
+    <label class="inline"><input type="checkbox" id="requireWorkSignal" /> ③ 作品の手がかりが1つもない投稿は対象外にする</label>
+    <div class="hint">手がかり = 画像/動画・小説を示す語・小説サイトへのリンク・長文。小説は画像なしで投稿されることが多いため、画像以外でも判定します</div>
+
+    <label for="novelKeywords">小説を示す語（カンマ区切り）</label>
+    <input type="text" id="novelKeywords" />
+
+    <label for="novelDomains">小説・作品投稿サイトのドメイン（カンマ区切り）</label>
+    <input type="text" id="novelDomains" />
+    <div class="hint">本文中のリンクやリンクカードのドメイン表示と部分一致で照合します</div>
+
+    <label for="minTextLength">長文とみなす文字数（0で無効）</label>
+    <input type="number" id="minTextLength" min="0" step="10" />
+    <div class="hint">X Premium の「さらに表示」付き長文ポストは文字数に関係なく長文とみなします</div>
+  </fieldset>
+
+  <fieldset>
+    <legend>キャラクター欄の自動推測ルール</legend>
+    <div class="hint">投稿本文に含まれるキーワードで、上の行から順に判定します。どれにもマッチしない場合は下の既定値になります。</div>
+    <table id="characterTable">
+      <thead><tr><th>キャラクター（フォームに転記する値）</th><th>キーワード（カンマ区切り）</th><th></th></tr></thead>
+      <tbody id="characterRows"></tbody>
+    </table>
+    <button type="button" id="addRuleBtn">+ ルールを追加</button>
+
+    <label for="defaultCharacter">マッチしなかった場合の既定値</label>
+    <input type="text" id="defaultCharacter" />
+    <div class="hint">空欄の場合、ダッシュボードで手入力するまで送信できません</div>
+  </fieldset>
+
+  <button type="button" id="saveBtn">保存</button>
+  <span id="status"></span>
+
+  <script src="options.js"></script>
+</body>
+</html>
