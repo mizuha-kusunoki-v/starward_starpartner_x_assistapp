@@ -124,10 +124,12 @@ explicitly triggers the submission.
 | 権限 | 正当化文（コピー用） |
 |---|---|
 | `storage` | Used to store the user's own settings (registered nickname, Discord ID, X username, keyword rules) and a local history of already-submitted posts, entirely on the user's device, to prevent duplicate submissions. |
-| `tabs` | Used to open the user's own X search results page and the target application form in new tabs, and to detect when each page has finished loading. |
-| `scripting` | Used to inject the post-reading script into the X search results page only when the user clicks "fetch posts" in the dashboard, and to auto-fill the application form with data the user already reviewed. |
-| host permission: `https://x.com/*` | Required to read the user's own posts (link, date, text, whether media is attached) from the X search results page that the extension opens in the user's logged-in browser at the user's request. No credentials are read and nothing is sent to any server. |
-| host permission: `https://wj.qq.com/*` | Required to fill in and submit the specific "Star Partner" application form hosted on this domain, only for posts the user explicitly selected. |
+| Host access (content script): `https://x.com/search*` | A content script on the X search results page reads the user's own posts (link, date, text, whether media is attached) only after the user clicks "fetch posts" in the dashboard, which opens that page in the user's logged-in browser. It is limited to the search page, does not run on any other X page, reads no credentials, and sends nothing to any server. |
+| Host access (content script): `https://wj.qq.com/*` | A content script fills in and submits the specific "Star Partner" application form hosted on this domain, only for posts the user explicitly selected in the dashboard. |
+
+> v0.1.0 は `tabs` / `scripting` を未使用（`tabs` はタブのURL・タイトル読み取り用の権限で不要、`scripting` は宣言型 content script で代替可能）として不承認（違反ID: Purple Potassium）。
+> v0.1.1 で `permissions` を `storage` のみ、`host_permissions` も削除し、サイトへのアクセスは `content_scripts` の `matches` だけにした。
+> タブ操作（`chrome.tabs.create` / `sendMessage` / `remove` 等）は `tabs` 権限なしで使える。
 
 **リモートコードの使用**: 「いいえ、リモートコードを使用していません」（全コードを同梱）
 

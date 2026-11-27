@@ -3,7 +3,7 @@ import { evaluateTweet, inferCharacter, type TweetEvaluation } from "../lib/clas
 import { MSG } from "../lib/messages";
 import { toJstDateString } from "../lib/date";
 import { buildMonthlySearchUrl, normalizeHandle } from "../lib/xSearch";
-import { waitForTabComplete } from "../lib/tabs";
+import { delay, waitForTabComplete } from "../lib/tabs";
 import type {
   CollectedTweet,
   CollectTweetsResult,
@@ -202,7 +202,30 @@ function updateSubmitButton(): void {
 }
 
 /**
- * Xの検索結果タブを開き、収集スクリプトを注入して投稿を読み取る。
+ * 収集スクリプト(manifestの content_scripts で x.com/search にだけ自動で読み込まれる)へ
+ * 収集を依頼する。タブの読み込み完了直後はスクリプトの準備がまだ終わっておらず
+ * 「受信側が存在しない」エラーになることがあるため、少し待って再試行する。
+ * 未ログイン等で検索ページ以外へ飛ばされた場合はスクリプトが読み込まれないので、
+ * 規定回数で諦めてログイン確認を促す。
+ */
+async function requestCollect(tabId: number, handle: string): Promise<CollectTweetsResult | undefined> {
+  for (let attempt = 0; attempt < 20; attempt++) {
+    try {
+      return (await chrome.tabs.sendMessage(tabId, {
+        type: MSG.COLLECT_TWEETS,
+        handle,
+      })) as CollectTweetsResult | undefined;
+    } catch {
+      await delay(500);
+    }
+  }
+  throw new Error(
+    "Xの検索ページを読み込めませんでした。開いたタブでXにログインしているか確認してから、もう一度お試しください"
+  );
+}
+
+/**
+ * Xの検索結果タブを開き、投稿を読み取る。
  * 仮想スクロールの描画はタブが非表示だと止まることがあるため、
  * 収集中はXのタブを前面に出し、終わったらダッシュボードに戻す。
  */
@@ -211,12 +234,8 @@ async function collectFromX(handle: string, year: number, month: number): Promis
   const tab = await chrome.tabs.create({ url: buildMonthlySearchUrl(handle, year, month), active: true });
   const tabId = tab.id!;
   await waitForTabComplete(tabId);
-  await chrome.scripting.executeScript({ target: { tabId }, files: ["content/xCollector.js"] });
 
-  const result = (await chrome.tabs.sendMessage(tabId, {
-    type: MSG.COLLECT_TWEETS,
-    handle,
-  })) as CollectTweetsResult | undefined;
+  const result = await requestCollect(tabId, handle);
 
   if (!result?.success) {
     // ログインが必要な場合などにユーザーがそのまま対応できるよう、タブは開いたままにする
