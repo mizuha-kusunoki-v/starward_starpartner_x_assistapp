@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "星の翼 スターパートナー X投稿申請アシスト",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "自分のX（Twitter）投稿を収集し、スターパートナー申請フォームへの転記・送信を半自動化します。",
   "icons": {
     "16": "icons/icon16.png",
@@ -20,16 +20,15 @@
     "service_worker": "background/service-worker.js"
   },
   "options_page": "options/options.html",
-  "permissions": ["storage"],
+  "permissions": ["storage", "scripting"],
+  "host_permissions": [
+    "https://wj.qq.com/*",
+    "https://x.com/*"
+  ],
   "content_scripts": [
     {
       "matches": ["https://wj.qq.com/*"],
       "js": ["content/formFiller.js"],
-      "run_at": "document_idle"
-    },
-    {
-      "matches": ["https://x.com/search*"],
-      "js": ["content/xCollector.js"],
       "run_at": "document_idle"
     }
   ]

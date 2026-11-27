@@ -1,6 +1,6 @@
 {
   "name": "starpartner-x-assistant",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "星の翼 スターパートナー X（Twitter）投稿申請アシスト（Chrome拡張機能）",
   "type": "module",

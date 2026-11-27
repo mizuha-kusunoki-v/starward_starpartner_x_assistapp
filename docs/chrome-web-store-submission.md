@@ -124,12 +124,16 @@ explicitly triggers the submission.
 | 権限 | 正当化文（コピー用） |
 |---|---|
 | `storage` | Used to store the user's own settings (registered nickname, Discord ID, X username, keyword rules) and a local history of already-submitted posts, entirely on the user's device, to prevent duplicate submissions. |
-| Host access (content script): `https://x.com/search*` | A content script on the X search results page reads the user's own posts (link, date, text, whether media is attached) only after the user clicks "fetch posts" in the dashboard, which opens that page in the user's logged-in browser. It is limited to the search page, does not run on any other X page, reads no credentials, and sends nothing to any server. |
-| Host access (content script): `https://wj.qq.com/*` | A content script fills in and submits the specific "Star Partner" application form hosted on this domain, only for posts the user explicitly selected in the dashboard. |
+| `scripting` | Used to inject the post-reading script into the X search results page only when the user clicks "fetch posts" in the dashboard (chrome.scripting.executeScript). The script is not loaded during normal X browsing. |
+| host permission: `https://x.com/*` | Required for the above script injection: it reads the user's own posts (link, date, text, whether media is attached) from the X search results page that the extension opens in the user's logged-in browser at the user's request. No credentials are read and nothing is sent to any server. |
+| host permission: `https://wj.qq.com/*` | Required to fill in and submit the specific "Star Partner" application form hosted on this domain, only for posts the user explicitly selected. |
 
-> v0.1.0 は `tabs` / `scripting` を未使用（`tabs` はタブのURL・タイトル読み取り用の権限で不要、`scripting` は宣言型 content script で代替可能）として不承認（違反ID: Purple Potassium）。
-> v0.1.1 で `permissions` を `storage` のみ、`host_permissions` も削除し、サイトへのアクセスは `content_scripts` の `matches` だけにした。
-> タブ操作（`chrome.tabs.create` / `sendMessage` / `remove` 等）は `tabs` 権限なしで使える。
+> v0.1.0 は「`tabs` をリクエストしているが使用していない」として不承認。
+> タブ操作（`chrome.tabs.create` / `sendMessage` / `remove` / `update` / `get` / `onUpdated`）は `tabs` 権限なしで使え、
+> `tabs` 権限が必要なのはタブのURL・タイトル等を読むときだけ（本拡張は読まない）。
+> v0.1.1 では `scripting` と `host_permissions` も外して宣言型 content script に切り替えたが、
+> `scripting` は実際に使っており指摘対象でもなかったため、実機で動作実績のある v0.1.0 の方式に戻し、
+> v0.1.2 は v0.1.0 から `tabs` だけを削除した構成にした。
 
 **リモートコードの使用**: 「いいえ、リモートコードを使用していません」（全コードを同梱）
 
