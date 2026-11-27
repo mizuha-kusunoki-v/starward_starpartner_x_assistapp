@@ -1,6 +1,8 @@
 // x.com の検索結果ページから自分の投稿を収集するスクリプト。
-// ダッシュボードが chrome.scripting.executeScript で必要なときだけ注入する
-// （普段のX閲覧中には読み込まれない）。
+// manifest の content_scripts で x.com/search にだけ読み込まれ、ダッシュボードから
+// 収集依頼のメッセージが来たときだけ動く（読み込まれるだけでは何もしない）。
+// 以前は scripting 権限で都度注入していたが、ストア審査で最小権限を求められたため
+// 宣言型の読み込みに変更した。
 //
 // X公式APIは読み取りが有料のため、ユーザー自身がログイン済みのブラウザで
 // 表示した検索結果のDOMを読み取る方式にしている。
@@ -11,12 +13,6 @@
 
 import { MSG } from "../lib/messages";
 import type { CollectedTweet, CollectTweetsResult } from "../lib/types";
-
-declare global {
-  interface Window {
-    __starpartnerXCollectorLoaded?: boolean;
-  }
-}
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -133,22 +129,18 @@ async function collectTweets(handle: string): Promise<CollectedTweet[]> {
   return [...tweets.values()];
 }
 
-if (!window.__starpartnerXCollectorLoaded) {
-  window.__starpartnerXCollectorLoaded = true;
+chrome.runtime.onMessage.addListener(
+  (message: { type: string; handle?: string }, _sender, sendResponse) => {
+    if (message.type !== MSG.COLLECT_TWEETS || !message.handle) return undefined;
 
-  chrome.runtime.onMessage.addListener(
-    (message: { type: string; handle?: string }, _sender, sendResponse) => {
-      if (message.type !== MSG.COLLECT_TWEETS || !message.handle) return undefined;
+    collectTweets(message.handle)
+      .then((tweets): CollectTweetsResult => ({ success: true, tweets }))
+      .catch((err: unknown): CollectTweetsResult => ({
+        success: false,
+        error: err instanceof Error ? err.message : String(err),
+      }))
+      .then((result) => sendResponse(result));
 
-      collectTweets(message.handle)
-        .then((tweets): CollectTweetsResult => ({ success: true, tweets }))
-        .catch((err: unknown): CollectTweetsResult => ({
-          success: false,
-          error: err instanceof Error ? err.message : String(err),
-        }))
-        .then((result) => sendResponse(result));
-
-      return true; // 非同期でsendResponseを呼ぶことを示す
-    }
-  );
-}
+    return true; // 非同期でsendResponseを呼ぶことを示す
+  }
+);
